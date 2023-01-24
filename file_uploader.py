@@ -1,6 +1,8 @@
 import streamlit as st
 from PIL import Image
 
+st.set_page_config("File Uploader", layout=("wide"))
+
 st.title("File uploader test")
 st.write("Choose a .py, .jpg or a .txt file")
 
@@ -12,10 +14,10 @@ if uploaded_file is not None:
     if filename.endswith(".py"):
         with uploaded_file as f:
             code_string = f.read().decode("utf-8")
-            if st.checkbox("Show source code"):
+            if st.checkbox("Show source code", False):
                 st.code(code_string, language=("python"))
             new_code_string = code_string.replace("st.set_page_config", "#")
-            if st.checkbox("Run python script"):
+            if st.checkbox("Run python script", False):
                 exec(new_code_string)
 
     elif filename.endswith(".txt"):
