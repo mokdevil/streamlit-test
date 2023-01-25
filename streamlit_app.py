@@ -49,5 +49,3 @@ image_comparison(
     label1="Hubble",
     label2="Webb",
 )
-
-
