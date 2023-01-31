@@ -24,9 +24,13 @@ if st.checkbox('Show raw data'):
     st.subheader('Raw data')
     st.write(data)
 
-st.subheader('Number of pickups by hour')
-hist_values = np.histogram(data[DATE_COLUMN].dt.hour, bins=24, range=(0,24))[0]
-st.bar_chart(hist_values)
+with st.expander("Number of pickups per hour charts"):   
+    hist_values = np.histogram(data[DATE_COLUMN].dt.hour, bins=24, range=(0,24))[0]
+    st.bar_chart(hist_values)
+    line_chart = np.histogram(data[DATE_COLUMN].dt.hour, bins=24, range=(0,24))[0]
+    st.line_chart(line_chart)
+    area_chart = np.histogram(data[DATE_COLUMN].dt.hour, bins=24, range=(0,24))[0]
+    st.area_chart(area_chart)
 
 # Some number in the range 0-23
 hour_to_filter = st.slider('hour', 0, 23, 17)
