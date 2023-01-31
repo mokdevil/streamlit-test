@@ -25,13 +25,15 @@ choice = st.radio("Select an operation", ("Add", "Subtract", "Multiply", "Divide
 num1 = st.number_input("Enter first number: ")
 num2 = st.number_input("Enter second number: ")
 if choice == 'Add':
-    st.write("add", num1, "+", num2, "=", add(num1, num2))
+    st.write(num1, "+", num2, "=", add(num1, num2))
 
 elif choice == 'Subtract':
-    st.write("subtract", num1, "-", num2, "=", subtract(num1, num2))
+    st.write(num1, "-", num2, "=", subtract(num1, num2))
 
 elif choice == 'Multiply':
-    st.write("multiply", num1, "*", num2, "=", multiply(num1, num2))
+    st.write(num1, "*", num2, "=", multiply(num1, num2))
 
+elif choice == 'Divide':
+    st.write(num1, "/", num2, "=", divide(num1, num2))
 elif choice == 'Divide':
     st.write("divide", num1, "/", num2, "=", divide(num1, num2))
