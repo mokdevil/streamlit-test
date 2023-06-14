@@ -2,7 +2,7 @@ import streamlit as st
 import random
 
 def generate_colors():
-    groups = ["puisto", "hirviöt", "jannet", "siirtyvät"]
+    groups = ["puisto", "hirviöt", "siirtyvät", "jannet"]
     colors = ["yellow", "orange", "red", "green", "blue", "indigo", "brown", "pink"]
 
     # Shuffle the colors to ensure random assignment to groups
