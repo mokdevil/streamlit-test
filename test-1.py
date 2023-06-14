@@ -36,7 +36,7 @@ def mapping_demo():
 
     from urllib.error import URLError
 
-    st.markdown(f"# {list(page_names_to_funcs.keys())[2]}")
+    st.markdown(f"# {list(page_names_to_funcs.keys())[1]}")
     st.write(
         """
         This demo shows how to use
@@ -45,7 +45,7 @@ to display geospatial data.
 """
     )
 
-    @st.cache
+    @st.cache_data
     def from_data_file(filename):
         url = (
             "http://raw.githubusercontent.com/streamlit/"
@@ -127,11 +127,12 @@ to display geospatial data.
         )
 
 def plotting_demo():
+
     import streamlit as st
     import time
     import numpy as np
 
-    st.markdown(f'# {list(page_names_to_funcs.keys())[1]}')
+    st.markdown(f'# {list(page_names_to_funcs.keys())[2]}')
     st.write(
         """
         This demo illustrates a combination of plotting and animation with
@@ -139,7 +140,6 @@ Streamlit. We're generating a bunch of random numbers in a loop for around
 5 seconds. Enjoy!
 """
     )
-
     progress_bar = st.sidebar.progress(0)
     status_text = st.sidebar.empty()
     last_rows = np.random.randn(1, 1)
@@ -154,11 +154,77 @@ Streamlit. We're generating a bunch of random numbers in a loop for around
         time.sleep(0.05)
 
     progress_bar.empty()
-
+    
     # Streamlit widgets automatically run the script from top to bottom. Since
     # this button is not connected to any other logic, it just causes a plain
     # rerun.
     st.button("Re-run")
+
+def animation_demo():
+    from typing import Any
+
+    import numpy as np
+
+    import streamlit as st
+
+    def animation() -> None:
+
+        # Interactive Streamlit elements, like these sliders, return their value.
+        # This gives you an extremely simple interaction model.
+        iterations = st.sidebar.slider("Level of detail", 2, 20, 10, 1)
+        separation = st.sidebar.slider("Separation", 0.7, 2.0, 0.7885)
+
+        # Non-interactive elements return a placeholder to their location
+        # in the app. Here we're storing progress_bar to update it later.
+        progress_bar = st.sidebar.progress(0)
+
+        # These two elements will be filled in later, so we create a placeholder
+        # for them using st.empty()
+        frame_text = st.sidebar.empty()
+        image = st.empty()
+
+        m, n, s = 960, 640, 400
+        x = np.linspace(-m / s, m / s, num=m).reshape((1, m))
+        y = np.linspace(-n / s, n / s, num=n).reshape((n, 1))
+
+        for frame_num, a in enumerate(np.linspace(0.0, 4 * np.pi, 100)):
+            # Here were setting value for these two elements.
+            progress_bar.progress(frame_num)
+            frame_text.text("Frame %i/100" % (frame_num + 1))
+
+            # Performing some fractal wizardry.
+            c = separation * np.exp(1j * a)
+            Z = np.tile(x, (n, 1)) + 1j * np.tile(y, (1, m))
+            C = np.full((n, m), c)
+            M: Any = np.full((n, m), True, dtype=bool)
+            N = np.zeros((n, m))
+
+            for i in range(iterations):
+                Z[M] = Z[M] * Z[M] + C[M]
+                M[np.abs(Z) > 2] = False
+                N[M] = i
+
+            # Update the image placeholder by calling the image() function on it.
+            image.image(1.0 - (N / N.max()), use_column_width=True)
+
+        # We clear elements by calling empty on them.
+        progress_bar.empty()
+        frame_text.empty()
+
+        # Streamlit widgets automatically run the script from top to bottom. Since
+        # this button is not connected to any other logic, it just causes a plain
+        # rerun.
+        st.button("Re-run")
+
+    st.markdown("# Animation Demo")
+    st.sidebar.header("Animation Demo")
+    st.write(
+        """This app shows how you can use Streamlit to build cool animations.
+    It displays an animated fractal based on the the Julia Set. Use the slider
+    to tune different parameters."""
+    )
+
+    animation()
 
 def uber():
     import streamlit as st
@@ -171,7 +237,7 @@ def uber():
     DATA_URL = ('https://s3-us-west-2.amazonaws.com/'
                 'streamlit-demo-data/uber-raw-data-sep14.csv.gz')
 
-    @st.cache
+    @st.cache_data
     def load_data(nrows):
         data = pd.read_csv(DATA_URL, nrows=nrows)
         lowercase = lambda x: str(x).lower()
@@ -181,7 +247,7 @@ def uber():
 
     data_load_state = st.text('Loading data...')
     data = load_data(10000)
-    data_load_state.text("Done! (using st.cache)")
+    data_load_state.text("Done! (using st.cache_data)")
 
     if st.checkbox('Show raw data'):
         st.subheader('Raw data')
@@ -277,15 +343,45 @@ def calculator():
 
 def file_uploader():
     import streamlit as st
-    import time
+    import pandas as pd
     from PIL import Image
 
     st.title("File uploader test")
     st.write("Choose a .py, .jpeg or a .txt file")
 
-    uploaded_file = st.file_uploader("Choose a file", type=["py", "jpeg", "txt"])
+    uploaded_file = st.file_uploader("Choose a file", type=["py", "jpeg", "txt", "csv"])
 
-    @st.cache
+    def read_python():
+        with uploaded_file as f:
+                code_string = read_file(f)
+                start_index = code_string.find('st.set_page_config(')
+                end_index = code_string.find(')', start_index)
+                new_code_string = code_string[:start_index] + code_string[end_index+1:]
+                if st.checkbox("Show source code", False):
+                    st.code(code_string, language=("python"))
+                if st.checkbox("Run python script", False):
+                    exec(new_code_string)
+
+    def read_text():
+        with uploaded_file as f:
+                op = st.selectbox(
+                    'Select how to display text',
+                    ("Text", "Code", "Write"))
+                if op == "Text":
+                    st.text(read_file(f))
+                elif op == "Code":
+                    st.code(read_file(f))
+                elif op == "Write":
+                    st.write(read_file(f))
+    
+    def read_image():
+        Image.open(uploaded_file)
+        st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
+
+    def read_csv():
+        data = pd.read_csv(uploaded_file)
+        st.dataframe(data)
+
     def read_file(file):
         return file.read().decode("utf-8")
 
@@ -293,30 +389,28 @@ def file_uploader():
         filename = uploaded_file.name
 
         if filename.endswith(".py"):
-            with uploaded_file as f:
-                code_string = read_file(f)
-                if st.checkbox("Show source code", False):
-                    st.code(code_string, language=("python"))
-                new_code_string = code_string.replace("st.set_page_config", "#")
-                if st.checkbox("Run python script", False):
-                    exec(new_code_string)
-
+            read_python()
         elif filename.endswith(".txt"):
-            with uploaded_file as f:
-                st.markdown(read_file(f))
-
+            read_text()
         elif filename.endswith(".jpeg"):
-            image = Image.open(uploaded_file)
-            st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
+            read_image()
+        elif filename.endswith(".csv"):
+            read_csv()
+
+def test():
+    text = st.text_area("Test: ", value= "Text")
+    st.download_button("Download file", data=text, file_name="test.txt")
 
 page_names_to_funcs = {
     "—": intro,
-    "Plotting Demo": plotting_demo,
     "Mapping Demo": mapping_demo,
+    "Plotting Demo": plotting_demo,
+    "Animation Demo": animation_demo,
     "Uber pickups": uber,
     "Youtube Thumbnail": yt_thumbnail,
     "Simple calculator": calculator,
-    "File uploader test": file_uploader
+    "File uploader test": file_uploader,
+    "Test": test
 }
 
 demo_name = st.sidebar.selectbox("Choose a demo", page_names_to_funcs.keys())
