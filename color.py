@@ -31,8 +31,8 @@ def generate_colors():
     return group_colors
 
 def main():
-    st.title("Random Color Generator")
-    st.write("Generate two random colors for four groups of people.")
+    st.title("Kesäjuhliin väri valija")
+    st.write("painat nappia ohjelma generoi neljälle ryhmälle kahdet värit.")
 
     if st.button("Generate Colors"):
         colors = generate_colors()
