@@ -32,14 +32,16 @@ def generate_colors():
 
 def main():
     st.title("Kesäjuhliin väri valija")
-    st.write("painat nappia ohjelma generoi neljälle ryhmälle kahdet värit.")
+    st.write("Paina nappia ja ohjelma arpoo 2 väriä neljälle ryhmälle.")
 
     if st.button("Generate Colors"):
         colors = generate_colors()
         for group, (color1_name, color1_hex), (color2_name, color2_hex) in colors:
             st.subheader(f"{group}")
-            st.markdown(f"Color 1: <span style='background-color: {color1_hex}; padding: 0.5rem'></span> {color1_name}", unsafe_allow_html=True)
-            st.markdown(f"Color 2: <span style='background-color: {color2_hex}; padding: 0.5rem'></span> {color2_name}", unsafe_allow_html=True)
+            st.markdown(f"Color 1: <span style='background-color: {color1_hex}; padding: 0.5rem'></span> {color1_name} (hex value: {color1_hex})", unsafe_allow_html=True)
+            st.markdown(f"Color 2: <span style='background-color: {color2_hex}; padding: 0.5rem'></span> {color2_name} (hex value: {color2_hex})", unsafe_allow_html=True)
+
+    st.markdown("[Click here](https://www.color-hex.com/) to visit Color Hex for more information on colors.")
 
 if __name__ == "__main__":
     main()
